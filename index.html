@@ -26,6 +26,7 @@
       font-weight: bold;
       color: #b55d00;
       margin-top: 2rem;
+      margin-bottom: 2rem;
       transition: transform 0.3s ease;
       box-shadow: 0 0 12px rgba(255, 165, 0, 0.3);
     }
@@ -89,19 +90,19 @@
 </head>
 <body>
   <h1>🍽️ 오늘 점심 뭐 먹지?</h1>
+  <div id="result"></div>
   <button onclick="pickMenu()">메뉴 뽑기!</button>
   <button id="shareBtn" onclick="shareMenu()" style="display:none;">📤 공유하기</button>
-  <div id="result"></div>
 
-  <div style="margin-top: 1rem;">
-    <input type="text" id="menuInput" placeholder="추가 할 메뉴를 입력하세요!" />
-    <button onclick="addCustomMenu()">내 메뉴 추가</button>
-  </div>
   <div id="toggleMyMenuBtn" onclick="toggleMyMenu()" style="cursor: pointer; font-weight: bold; margin-top: 2rem;">
-    📝 내 점심 메뉴 목록 / 닫기 ▲ 
+    📝 내 점심 메뉴 목록 / 클릭하여 닫기 ▲ 
   </div>
 
   <div id="customMenuContainer" class="collapsible open">
+    <div style="margin-top: 1rem;">
+      <input type="text" id="menuInput" placeholder="추가 할 메뉴를 입력하세요!" />
+      <button onclick="addCustomMenu()">내 메뉴 추가</button>
+    </div>
     <ul id="customMenuList"></ul>
   </div>
 
@@ -251,7 +252,7 @@
 
       const isOpen = container.classList.toggle("open");
 
-      btn.textContent = isOpen ? "📝 내 점심 메뉴 목록 / 닫기 ▲" : "📝 내 점심 메뉴 목록 / 보기 ▼";
+      btn.textContent = isOpen ? "📝 내 점심 메뉴 목록 / 클릭하여 닫기 ▲" : "📝 내 점심 메뉴 목록 / 클릭하여 보기 ▼";
     }
 
     // 초기화
