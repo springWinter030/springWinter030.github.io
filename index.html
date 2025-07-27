@@ -96,7 +96,9 @@
     }
     .label { 
       font-weight: bold; 
+      font-size: 1.5rem;
       margin-top: 1.5rem; 
+      margin-bottom: 1rem;
     }
     .collapsible {
       overflow: hidden;
@@ -147,6 +149,31 @@
       background-color: #f8aa1f;
     }
 
+    .category-block { 
+      margin-bottom: 0.2rem;
+      max-width: 400px; 
+      margin-inline: auto; 
+      padding: 0;
+    }
+
+    .category-block h3 {
+      padding: 0.2rem 0.5rem;
+      background-color: #fcb941;
+      border-radius: 10px;
+      margin: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .category-menu {
+      overflow: hidden; 
+      max-height: 0; 
+      transition: max-height 0.4s ease;
+      margin: auto;
+      padding: 0;
+    }
+    .category-menu.open { 
+      max-height: 1000px;
+    }
   </style>
 </head>
 <body>
@@ -157,8 +184,8 @@
   <button onclick="pickMenu()">메뉴 뽑기!</button>
   <button id="shareBtn" onclick="shareMenu()" style="display:none;">📤 공유하기</button>
 
-  <div id="toggleMyMenuBtn" onclick="toggleMyMenu()" style="cursor: pointer; font-weight: bold; margin-top: 2rem;">
-    📝 내 점심 메뉴 목록 / 클릭하여 닫기 ▲ 
+  <div id="toggleMyMenuBtn" onclick="toggleMyMenu()" style="cursor: pointer; font-weight: bold; margin-top: 2rem; font-size: 1.5rem;">
+    📝 내 점심 메뉴 목록 ▲ 
   </div>
 
   <div id="customMenuContainer" class="collapsible open">
@@ -170,15 +197,82 @@
   </div>
 
   <div class="label">📋 기본 점심 메뉴 목록</div>
-  <ul id="defaultMenuList"></ul>
-
-  
+  <div id="categoryContainer"></div>
 
   <script>
-    const defaultMenus = [
-      "김치찌개", "된장찌개", "돈까스", "부대찌개", "칼국수",
-      "제육볶음", "비빔밥", "짜장면", "짬뽕", "순두부찌개"
-    ];
+    const defaultMenuCategories = {
+      stew: {
+        name: "찌개류",
+        items: ["김치찌개", "된장찌개", "부대찌개", "순두부찌개"]
+      },
+      rice: {
+        name: "밥류",
+        items: ["제육볶음", "비빔밥"]
+      },
+      noodle: {
+        name: "면류",
+        items: ["칼국수", "짜장면", "짬뽕"]
+      },
+      etc: {
+        name: "기타",
+        items: ["돈까스"]
+      }
+    };
+
+    // 열림 상태 저장 객체
+    const categoryStates = {
+      stew: true,
+      rice: true,
+      noodle: true,
+      etc: true
+    };
+
+    const categoryContainer = document.getElementById("categoryContainer");
+
+    function renderCategoryMenus() {
+      categoryContainer.innerHTML = "";
+
+      for (const key in defaultMenuCategories) {
+        const category = defaultMenuCategories[key];
+        const section = document.createElement("div");
+        section.classList.add("category-block");
+
+        const list = document.createElement("ul");
+        list.className = "collapsible category-menu";
+        if (categoryStates[key]) list.classList.add("open");
+
+        const header = document.createElement("h3");
+        header.textContent = `📂 ${category.name} ${categoryStates[key] ? "▲" : "▼"}`;
+        header.style.cursor = "pointer";
+        header.onclick = () => {
+          categoryStates[key] = !categoryStates[key];
+          renderCategoryMenus(); // 다시 렌더링하면서 상태 유지됨
+        };
+
+        let addedAll = true;
+        category.items.forEach(menu => {
+          if (menus.includes(menu)) return;
+          addedAll = false;
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <span>${menu}</span>
+            <button onclick="addToMyMenu('${menu}')">추가</button>
+          `;
+          list.appendChild(li);
+        });
+
+        if (addedAll) {
+          const li = document.createElement("li");
+          li.innerHTML = `<span style="color: gray;">모든 메뉴를 추가하였어요! 🎉</span>`;
+          list.appendChild(li);
+        }
+
+        section.appendChild(header);
+        section.appendChild(list);
+        categoryContainer.appendChild(section);
+      }
+    }
+
     let menus = []; // 사용자 메뉴
 
     const defaultMenuListEl = document.getElementById("defaultMenuList");
@@ -195,29 +289,7 @@
     }
 
     function renderMenus() {
-      // 기본 메뉴
-      defaultMenuListEl.innerHTML = "";
-      let addedAll = true;
-
-      defaultMenus.forEach(menu => {
-        if (menus.includes(menu)) return;
-
-        addedAll = false; // 아직 안 추가된 메뉴가 있음
-
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${menu}</span>
-          <button onclick="addToMyMenu('${menu}')">추가</button>
-        `;
-        defaultMenuListEl.appendChild(li);
-      });
-
-      if (addedAll) {
-        const li = document.createElement("li");
-        li.innerHTML = `<span style="color: gray;">모든 메뉴를 추가하였어요! 🎉</span>`;
-        defaultMenuListEl.appendChild(li);
-      }
-
+      renderCategoryMenus();
       // 내 메뉴
       customMenuListEl.innerHTML = "";
       if (menus.length === 0) {
@@ -235,8 +307,7 @@
         });
       }
     }
-
-
+    
     function pickMenu() {
       const shareBtn = document.getElementById("shareBtn");
 
@@ -316,7 +387,7 @@
 
       const isOpen = container.classList.toggle("open");
 
-      btn.textContent = isOpen ? "📝 내 점심 메뉴 목록 / 클릭하여 닫기 ▲" : "📝 내 점심 메뉴 목록 / 클릭하여 보기 ▼";
+      btn.textContent = isOpen ? "📝 내 점심 메뉴 목록 ▲" : "📝 내 점심 메뉴 목록 ▼";
     }
 
     // 초기화
