@@ -21,17 +21,37 @@
     #result {
       background: #fff5dc;
       padding: 1rem;
+      text-align: center;     
+      line-height: 1.6;          
+      display: block;  
       border-radius: 12px;
       font-size: 1.6rem;
       font-weight: bold;
       color: #b55d00;
       margin-top: 2rem;
       margin-bottom: 2rem;
-      transition: transform 0.3s ease;
+      transform: scale(1);
       box-shadow: 0 0 12px rgba(255, 165, 0, 0.3);
+      white-space: pre-line;
     }
     #result.show {
-      opacity: 1; transform: scale(1.15);
+      opacity: 1;
+      animation: popAnimation 1s ease;
+    }
+
+    @keyframes popAnimation {
+      0% {
+        opacity: 0;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
     button, input[type="text"] {
       font-size: 1rem; padding: 0.6rem 1rem; margin: 0.3rem;
@@ -105,13 +125,13 @@
       outline: none;
       font-size: 1rem;
       flex: 1;
-      min-width: 0; /* ⭐ 중요: 줄어들 수 있게 허용 */
+      min-width: 0;
       padding: 0.4rem 0.5rem;
       background: transparent;
     }
 
     .custom-input-box button {
-      flex-shrink: 0; /* ⭐ 중요: 버튼은 줄어들지 않음 */
+      flex-shrink: 0;
       background-color: #fcb941;
       color: white;
       border: none;
@@ -131,7 +151,9 @@
 </head>
 <body>
   <h1>🍽️ 오늘 점심 뭐 먹지?</h1>
-  <div id="result"></div>
+  <div id="result"> 메뉴 뽑기 버튼을 눌러 
+    오늘의 점심을 뽑아보세요!
+  </div>
   <button onclick="pickMenu()">메뉴 뽑기!</button>
   <button id="shareBtn" onclick="shareMenu()" style="display:none;">📤 공유하기</button>
 
@@ -219,23 +241,24 @@
       const shareBtn = document.getElementById("shareBtn");
 
       if (menus.length === 0) {
-        updateResult("추가된 점심 메뉴가 없습니다!");
-        shareBtn.style.display = "none"; // ❌ 공유 버튼 숨기기
+        updateResult("추가된 점심 메뉴가 없습니다! \n메뉴를 추가해주세요!");
+        shareBtn.style.display = "none";
         return;
       }
 
       const picked = menus[Math.floor(Math.random() * menus.length)];
-      updateResult(`오늘은 "${picked}" 어때요? 😋`);
+      updateResult(`오늘의 점심 메뉴는 \n<span style="color:#2e8b57">"${picked}"</span> \n어떤가요! 😋`);
 
       shareBtn.style.display = "inline-block";
       shareBtn.setAttribute("data-menu", picked);
     }
 
-
     function updateResult(text) {
+      const resultEl = document.getElementById("result");
+      resultEl.innerHTML = text;
       resultEl.classList.remove("show");
-      resultEl.textContent = text;
-      setTimeout(() => resultEl.classList.add("show"), 50);
+      void resultEl.offsetWidth;
+      resultEl.classList.add("show");
     }
 
     function addToMyMenu(menu) {
