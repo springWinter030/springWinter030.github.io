@@ -1,152 +1,200 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
   <title>🍱 점심 메뉴 랜덤뽑기</title>
   <style>
     body {
-      font-family: "Noto Sans KR", sans-serif;
+      font-family: 'Jua', sans-serif;
       background-color: #fffaf3;
+      background: linear-gradient(135deg, #fffaf3 0%, #ffe9c8 100%);
       color: #333;
       text-align: center;
       padding: 2rem;
     }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
     #result {
-      font-size: 1.8rem;
+      background: #fff5dc;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1.6rem;
       font-weight: bold;
-      color: #d2691e;
-      margin: 2rem 0;
-      opacity: 0;
-      transition: opacity 0.6s ease, transform 0.6s ease;
+      color: #b55d00;
+      margin-top: 2rem;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 12px rgba(255, 165, 0, 0.3);
     }
 
     #result.show {
-      opacity: 1;
-      transform: scale(1.1);
+      opacity: 1; transform: scale(1.15);
     }
-
     button, input[type="text"] {
-      font-size: 1rem;
-      padding: 0.6rem 1rem;
-      margin: 0.3rem;
+      font-size: 1rem; padding: 0.6rem 1rem; margin: 0.3rem;
+      border: none; border-radius: 8px;
+    }
+    button {
+      background: linear-gradient(135deg, #ffb347, #ffcc33);
+      color: white;
       border: none;
       border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
     }
-
-    button {
-      background-color: #ffa500;
-      color: white;
-      cursor: pointer;
-    }
-
     button:hover {
-      background-color: #ff8c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-
-    input[type="text"] {
-      border: 1px solid #ccc;
-      width: 200px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      max-width: 300px;
-      margin: 1rem auto;
-    }
-
+    ul { list-style: none; padding: 0; max-width: 350px; margin: 1rem auto; }
     ul li {
+      background: white;
+      border-radius: 12px;
+      padding: 0.5rem;
+      margin-bottom: 0.2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.3rem;
-      background: #fff0d9;
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
     }
-
-    ul li button {
-      background-color: #ff4d4d;
-      color: white;
-      font-size: 0.8rem;
-      padding: 0.2rem 0.5rem;
+    ul li span {
+      flex: 1;
+      text-align: left;
     }
-
-    @media (max-width: 500px) {
-      h1 { font-size: 1.5rem; }
-      input[type="text"] { width: 150px; }
-    }
+    ul li button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-left: 0.3rem; }
+    .label { font-weight: bold; margin-top: 1.5rem; }
   </style>
 </head>
 <body>
 
   <h1>🍽️ 오늘 점심 뭐 먹지?</h1>
-
   <button onclick="pickMenu()">메뉴 뽑기!</button>
   <button id="shareBtn" onclick="shareMenu()" style="display:none;">📤 공유하기</button>
   <div id="result"></div>
 
-  <div style="margin-top: 2rem;">
-    <input type="text" id="menuInput" placeholder="메뉴 추가" />
-    <button onclick="addMenu()">추가</button>
+  <div class="label">📝 내 점심 목록</div>
+  <div style="margin-top: 1rem;">
+    <input type="text" id="menuInput" placeholder="추가 할 메뉴를 입력하세요!" />
+    <button onclick="addCustomMenu()">내 메뉴 추가</button>
   </div>
+  <ul id="customMenuList"></ul>
 
-  <ul id="menuList"></ul>
+  <div class="label">📋 기본 점심 목록</div>
+  <ul id="defaultMenuList"></ul>
+
+  
 
   <script>
-    let menus = [
+    const defaultMenus = [
       "김치찌개", "된장찌개", "돈까스", "부대찌개", "칼국수",
       "제육볶음", "비빔밥", "짜장면", "짬뽕", "순두부찌개"
     ];
+    let menus = []; // 사용자 메뉴
 
-    const menuListEl = document.getElementById("menuList");
+    const defaultMenuListEl = document.getElementById("defaultMenuList");
+    const customMenuListEl = document.getElementById("customMenuList");
     const resultEl = document.getElementById("result");
 
-    function renderMenuList() {
-      menuListEl.innerHTML = "";
+    function saveMenus() {
+      localStorage.setItem("savedMenus", JSON.stringify(menus));
+    }
+
+    function loadMenus() {
+      const saved = localStorage.getItem("savedMenus");
+      if (saved) menus = JSON.parse(saved);
+    }
+
+    function renderMenus() {
+      // 기본 메뉴 렌더링
+      defaultMenuListEl.innerHTML = "";
+      let addedAll = true;
+
+      defaultMenus.forEach(menu => {
+        if (menus.includes(menu)) return;
+
+        addedAll = false; // 아직 안 추가된 메뉴가 있음
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${menu}</span>
+          <button onclick="addToMyMenu('${menu}')">추가</button>
+        `;
+        defaultMenuListEl.appendChild(li);
+      });
+
+      if (addedAll) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span style="color: gray;">모든 메뉴를 추가하였어요! 🎉</span>`;
+        defaultMenuListEl.appendChild(li);
+      }
+
+      // 내 메뉴
+      customMenuListEl.innerHTML = "";
       menus.forEach((menu, index) => {
         const li = document.createElement("li");
-        li.innerHTML = `${menu} <button onclick="removeMenu(${index})">삭제</button>`;
-        menuListEl.appendChild(li);
+        li.innerHTML = `
+          <span>${menu}</span>
+          <button onclick="removeMenu(${index})">삭제</button>
+        `;
+        customMenuListEl.appendChild(li);
       });
     }
 
+
     function pickMenu() {
+      const shareBtn = document.getElementById("shareBtn");
+
       if (menus.length === 0) {
-        resultEl.textContent = "메뉴가 없습니다!";
+        updateResult("내 메뉴가 없습니다!");
+        shareBtn.style.display = "none"; // ❌ 공유 버튼 숨기기
         return;
       }
-      const randomIndex = Math.floor(Math.random() * menus.length);
-      const picked = menus[randomIndex];
-      resultEl.textContent = `오늘은 "${picked}" 어때요? 😋`;
-      resultEl.classList.remove("show");
-      setTimeout(() => resultEl.classList.add("show"), 10);
 
-      // 공유 버튼 표시
-      document.getElementById("shareBtn").style.display = "inline-block";
-      document.getElementById("shareBtn").setAttribute("data-menu", picked);
+      const picked = menus[Math.floor(Math.random() * menus.length)];
+      updateResult(`오늘은 "${picked}" 어때요? 😋`);
+
+      // ✅ 공유 버튼 다시 표시 + 데이터 설정
+      shareBtn.style.display = "inline-block";
+      shareBtn.setAttribute("data-menu", picked);
     }
 
 
-    function addMenu() {
-      const input = document.getElementById("menuInput");
-      const value = input.value.trim();
-      if (value && !menus.includes(value)) {
-        menus.push(value);
-        input.value = "";
-        renderMenuList();
+    function updateResult(text) {
+      resultEl.classList.remove("show");
+      resultEl.textContent = text;
+      setTimeout(() => resultEl.classList.add("show"), 50);
+    }
+
+    function addToMyMenu(menu) {
+      if (!menus.includes(menu)) {
+        menus.push(menu);
+        saveMenus();
+        renderMenus();
+      } else {
+        alert("이미 추가된 메뉴입니다!");
       }
     }
 
     function removeMenu(index) {
       menus.splice(index, 1);
-      renderMenuList();
+      saveMenus();
+      renderMenus();
+    }
+
+    function addCustomMenu() {
+      const input = document.getElementById("menuInput");
+      const value = input.value.trim();
+      if (!value) return;
+
+      if (menus.includes(value)) {
+        alert("이미 추가된 메뉴입니다!");
+        return;
+      }
+
+      menus.push(value);
+      input.value = "";
+      saveMenus();
+      renderMenus();
     }
 
     function shareMenu() {
@@ -160,14 +208,15 @@
           url: window.location.href
         }).catch(err => console.error("공유 실패:", err));
       } else {
-        // Fallback: 클립보드 복사
         navigator.clipboard.writeText(text)
           .then(() => alert("공유 문구가 복사되었습니다! 채팅창에 붙여넣기 하세요."))
           .catch(() => alert("복사 실패. 브라우저가 지원하지 않습니다."));
       }
     }
 
-    renderMenuList();
+    // 초기화
+    loadMenus();
+    renderMenus();
   </script>
 </body>
 </html>
