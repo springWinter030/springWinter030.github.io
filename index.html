@@ -86,6 +86,47 @@
     .collapsible.open {
       max-height: 1000px;
     }
+    .custom-input-box {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 0.5rem 0.7rem;
+      width: 100%;
+      max-width: 360px;
+      margin: 1rem auto;
+      box-sizing: border-box;
+      gap: 0.5rem;
+    }
+
+    .custom-input-box input {
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      flex: 1;
+      min-width: 0; /* ⭐ 중요: 줄어들 수 있게 허용 */
+      padding: 0.4rem 0.5rem;
+      background: transparent;
+    }
+
+    .custom-input-box button {
+      flex-shrink: 0; /* ⭐ 중요: 버튼은 줄어들지 않음 */
+      background-color: #fcb941;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+    }
+
+    .custom-input-box button:hover {
+      background-color: #f8aa1f;
+    }
+
   </style>
 </head>
 <body>
@@ -99,7 +140,7 @@
   </div>
 
   <div id="customMenuContainer" class="collapsible open">
-    <div style="margin-top: 1rem;">
+    <div class="custom-input-box">
       <input type="text" id="menuInput" placeholder="추가 할 메뉴를 입력하세요!" />
       <button onclick="addCustomMenu()">내 메뉴 추가</button>
     </div>
