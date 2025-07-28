@@ -496,13 +496,12 @@
 
     function shareMenu() {
       const picked = document.getElementById("shareBtn").getAttribute("data-menu");
-      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️`;
+      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️ \n\nhttps://springwinter030.github.io/`;
 
       if (navigator.share) {
         navigator.share({
           title: "점심 메뉴 추천",
           text: text,
-          url: window.location.href
         }).catch(err => console.error("공유 실패:", err));
       } else {
         navigator.clipboard.writeText(text)
