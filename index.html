@@ -174,6 +174,57 @@
     .category-menu.open { 
       max-height: 2000px;
     }
+
+    .menu-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .menu-actions button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: #ffce91;
+      color: #5a3200;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    .menu-actions button:hover {
+      background-color: #ffc071;
+      transform: translateY(-2px);
+    }
+    #clearAllBtn {
+      background-color: #ffd6d6;
+      color: #801010;
+    }
+    #clearAllBtn:hover {
+      background-color: #ffbbbb;
+    }
+    #topMessage {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffefc0;
+      color: #9b5d00;
+      padding: 0.8rem 1.2rem;
+      border-radius: 0 0 12px 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #topMessage.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -189,6 +240,11 @@
   </div>
 
   <div id="customMenuContainer" class="collapsible open">
+    <div class="menu-actions">
+      <button id="addAllBtn" onclick="addAllDefaultMenus()">🍱 기본 메뉴 모두 추가</button>
+      <button id="clearAllBtn" onclick="clearMyMenus()">🗑️ 내 메뉴 전부 삭제</button>
+    </div>
+    <div id="topMessage" class="hidden-message"></div>
     <div class="custom-input-box">
       <input type="text" id="menuInput" placeholder="추가 할 메뉴를 입력하세요!" />
       <button onclick="addCustomMenu()">내 메뉴 추가</button>
@@ -390,13 +446,19 @@
     }
 
     function addToMyMenu(menu) {
-      if (!menus.includes(menu)) {
-        menus.push(menu);
-        saveMenus();
-        renderMenus();
-      } else {
-        alert("이미 추가된 메뉴입니다!");
+      if (menus.includes(menu)) {
+        showTopMessage("⚠️ 이미 내 메뉴에 추가된 메뉴에요!");
+        return;
       }
+
+      if (menus.length >= 150) {
+        showTopMessage("⚠️ 최대 150개의 메뉴까지만 저장할 수 있어요!");
+        return;
+      }
+
+      menus.push(menu);
+      saveMenus();
+      renderMenus();
     }
 
     function removeMenu(index) {
@@ -411,7 +473,12 @@
       if (!value) return;
 
       if (menus.includes(value)) {
-        alert("이미 추가된 메뉴입니다!");
+        showTopMessage("⚠️ 이미 내 메뉴에 추가된 메뉴에요!");
+        return;
+      }
+
+      if (menus.length >= 150) {
+        showTopMessage("⚠️ 최대 150개의 메뉴까지만 저장할 수 있어요!");
         return;
       }
 
@@ -420,6 +487,12 @@
       saveMenus();
       renderMenus();
     }
+
+    document.getElementById("menuInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        addCustomMenu();
+      }
+    });
 
     function shareMenu() {
       const picked = document.getElementById("shareBtn").getAttribute("data-menu");
@@ -433,8 +506,8 @@
         }).catch(err => console.error("공유 실패:", err));
       } else {
         navigator.clipboard.writeText(text)
-          .then(() => alert("공유 문구가 복사되었습니다! 채팅창에 붙여넣기 하세요."))
-          .catch(() => alert("복사 실패. 브라우저가 지원하지 않습니다."));
+          .then(() => showTopMessage("공유 문구가 복사되었습니다! 채팅창에 붙여넣기 하세요."))
+          .catch(() => showTopMessage("복사 실패. 브라우저가 지원하지 않습니다."));
       }
     }
 
@@ -445,6 +518,48 @@
       const isOpen = container.classList.toggle("open");
 
       btn.textContent = isOpen ? "📝 내 점심 메뉴 목록 ▲" : "📝 내 점심 메뉴 목록 ▼";
+    }
+
+    // 모든 기본 메뉴를 내 점심 메뉴에 추가
+    function addAllDefaultMenus() {
+      let addedCount = 0;
+      for (const key in defaultMenuCategories) {
+        defaultMenuCategories[key].items.forEach(item => {
+          if (!menus.includes(item)) {
+            menus.push(item);
+            addedCount++;
+          }
+        });
+      }
+
+      if (addedCount > 0) {
+        saveMenus();
+        renderMenus();
+        showTopMessage("✅ 기본 메뉴가 모두 추가되었습니다!");
+      } else {
+        showTopMessage("⚠️ 이미 모든 기본 메뉴가 추가되어 있습니다.");
+      }
+    }
+
+    // 내 점심 메뉴 전부 삭제
+    function clearMyMenus() {
+      if (confirm("정말 내 점심 메뉴를 전부 삭제할까요?")) {
+        menus = [];
+        saveMenus();
+        renderMenus();
+        document.getElementById("shareBtn").style.display = "none";
+        showTopMessage("✅ 내 메뉴가 전부 삭제되었습니다!");
+      }
+    }
+
+    function showTopMessage(text) {
+      const msg = document.getElementById("topMessage");
+      msg.textContent = text;
+      msg.classList.add("show");
+
+      setTimeout(() => {
+        msg.classList.remove("show");
+      }, 3000); // 3초 후 사라짐
     }
 
     // 초기화
