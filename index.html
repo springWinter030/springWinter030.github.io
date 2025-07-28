@@ -22,7 +22,7 @@
   <meta property="twitter:image" content="https://springwinter030.github.io/assets/preview.jpg">
 
   <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <title>🍱 점심 메뉴 랜덤뽑기</title>
+  <title>점심 메뉴 랜덤뽑기</title>
   <style>
     body {
       font-family: 'Jua', sans-serif;
@@ -514,10 +514,7 @@
 
     function shareMenu() {
       const picked = document.getElementById("shareBtn").getAttribute("data-menu");
-      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️
-      맛있는 점심을 먹으러 가볼까요?
-      
-      https://springwinter030.github.io/`;
+      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️ \n맛있는 점심을 먹으러 가볼까요? \n\nhttps://springwinter030.github.io/`;
 
       if (navigator.share) {
         navigator.share({
