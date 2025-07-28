@@ -3,6 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 기본 메타 -->
+  <meta name="title" content="오늘 점심 뭐 먹지? 🍱">
+  <meta name="description" content="매일 고민되는 점심 메뉴, 간편하게 골라보세요! 버튼 한 번이면 OK 🙌">
+
+  <!-- Open Graph (카카오톡, 페이스북 등) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://springwinter030.github.io/">
+  <meta property="og:title" content="오늘 점심 뭐 먹지? 🍱">
+  <meta property="og:description" content="매일 고민되는 점심 메뉴, 간편하게 골라보세요! 버튼 한 번이면 OK 🙌">
+  <meta property="og:image" content="https://springwinter030.github.io/assets/preview.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://springwinter030.github.io/">
+  <meta property="twitter:title" content="오늘 점심 뭐 먹지? 🍱">
+  <meta property="twitter:description" content="매일 고민되는 점심 메뉴, 간편하게 골라보세요! 버튼 한 번이면 OK 🙌">
+  <meta property="twitter:image" content="https://springwinter030.github.io/assets/preview.jpg">
+
   <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
   <title>🍱 점심 메뉴 랜덤뽑기</title>
   <style>
@@ -496,12 +514,16 @@
 
     function shareMenu() {
       const picked = document.getElementById("shareBtn").getAttribute("data-menu");
-      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️ \n\nhttps://springwinter030.github.io/`;
+      const text = `오늘 점심 추천 메뉴는 "${picked}"입니다! 🍽️\n
+      맛있는 점심을 먹으러 가볼까요?\n\n
+      
+      https://springwinter030.github.io/`;
 
       if (navigator.share) {
         navigator.share({
           title: "점심 메뉴 추천",
           text: text,
+          /*url: window.location.href*/
         }).catch(err => console.error("공유 실패:", err));
       } else {
         navigator.clipboard.writeText(text)
